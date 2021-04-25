@@ -60,7 +60,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 1, 1.5);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(2, 1, 1);
 
-    public static double LATERAL_MULTIPLIER = 2.307;
+    public static double LATERAL_MULTIPLIER = 2.307; // 2.307
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -248,6 +248,10 @@ public class SampleMecanumDrive extends MecanumDrive {
         waitForIdle();
     }
 
+    public void cancelFollowing() {
+        mode = Mode.IDLE;
+    }
+
     public Pose2d getLastError() {
         switch (mode) {
             case FOLLOW_TRAJECTORY:
@@ -431,6 +435,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     public double getRawExternalHeading() {
         return 0;
     }
+
+
 
 
 }
