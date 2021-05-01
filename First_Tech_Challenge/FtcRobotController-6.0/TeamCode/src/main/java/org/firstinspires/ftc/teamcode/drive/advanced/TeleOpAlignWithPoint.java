@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  * Press `a` to switch into alignment mode and `b` to switch back into standard teleop driving mode.
  */
 @Config
-@Disabled
+//@Disabled
 @TeleOp(group = "advanced")
 public class TeleOpAlignWithPoint extends LinearOpMode {
 

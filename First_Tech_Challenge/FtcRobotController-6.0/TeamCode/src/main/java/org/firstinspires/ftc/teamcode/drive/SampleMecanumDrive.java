@@ -35,6 +35,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+
 import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 
@@ -87,7 +88,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     private List<Pose2d> poseHistory;
 
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
-    public DcMotorEx flyWheel, Intake, Tread;
+    public DcMotorEx flyWheel, Intake, Tread, misc;
     private List<DcMotorEx> motors;
     private BNO055IMU imu;
 
@@ -97,10 +98,6 @@ public class SampleMecanumDrive extends MecanumDrive {
     public Servo TreadGate, intakeLift, wobbleClamp;
 
     private List<Servo> servos;
-
-    TouchSensor wobbleTop;
-    ColorSensor wobbleSensor;
-
 
     private VoltageSensor batteryVoltageSensor;
 
@@ -146,10 +143,13 @@ public class SampleMecanumDrive extends MecanumDrive {
 
 
         flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
+        flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         Intake = hardwareMap.get(DcMotorEx.class, "intake");
         Tread = hardwareMap.get(DcMotorEx.class, "Tread");
+        misc = hardwareMap.get(DcMotorEx.class, "misc");
+
 
 
 
@@ -158,11 +158,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         TreadGate = hardwareMap.get(Servo.class, "treadGate");
         intakeLift = hardwareMap.get(Servo.class, "intakeLift");
 
-
-        wobbleTop = hardwareMap.touchSensor.get("wobbleTop");
-        wobbleSensor = hardwareMap.colorSensor.get("wobbleSensor");
-
-        motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront, Intake, Tread, flyWheel);
+        motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront, Intake, Tread, flyWheel, misc);
         servos = Arrays.asList(TreadGate, intakeLift, wobbleClamp);
 
         for (DcMotorEx motor : motors) {
@@ -183,18 +179,13 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         // TODO: reverse any motors using DcMotor.setDirection()
 
-        /*leftFront.setDirection(DcMotor.Direction.FORWARD);
-        leftRear.setDirection(DcMotor.Direction.FORWARD);
-        rightRear.setDirection(DcMotor.Direction.REVERSE);
-        rightFront.setDirection(DcMotor.Direction.REVERSE);*/
-
         leftFront.setDirection(DcMotor.Direction.FORWARD);
         leftRear.setDirection(DcMotor.Direction.FORWARD);
         rightRear.setDirection(DcMotor.Direction.REVERSE);
         rightFront.setDirection(DcMotor.Direction.REVERSE);
 
         Intake.setDirection(DcMotor.Direction.REVERSE);
-        Tread.setDirection(DcMotor.Direction.REVERSE);
+        //Tread.setDirection(DcMotor.Direction.REVERSE);
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         flyWheel.setDirection(DcMotor.Direction.REVERSE);
 
@@ -423,6 +414,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         return wheelVelocities;
     }
 
+
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
         leftFront.setPower(v);
@@ -431,10 +423,12 @@ public class SampleMecanumDrive extends MecanumDrive {
         rightFront.setPower(v3);
     }
 
+
     @Override
     public double getRawExternalHeading() {
         return 0;
     }
+
 
 
 

@@ -15,12 +15,14 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -190,7 +192,8 @@ public class BetaAlfa extends LinearOpMode {
 
             /** MANUAL OVERRIDES AND CONTROLS*/
             //Keep the fly wheel spinning at partial speed
-            drive.flyWheel.setPower(0.90);
+            //drive.flyWheel.setPower(0.82);
+            drive.flyWheel.setVelocity(520, DEGREES);
 
 
             if(gamepad2.dpad_left || gamepad1.dpad_left) {
@@ -272,6 +275,8 @@ public class BetaAlfa extends LinearOpMode {
             /** ASSORTED TELEMETRY SYSTEMS */
 
             {
+                telemetry.addData("Raw positions", drive.getWheelPositions());
+                //telemetry.addData("Null", StandardTrackingWheelLocalizer.)
                 telemetry.addData("RR Pose X ", drive.getPoseEstimate().getX());
                 telemetry.addData("RR Pose Y ", drive.getPoseEstimate().getY());
                 telemetry.addData("RR Pose Heading ", Math.toDegrees(drive.getPoseEstimate().getHeading()));
@@ -288,31 +293,32 @@ public class BetaAlfa extends LinearOpMode {
 
     /** AUTOMATIC SALVO SYSTEMS */
     public void AutoFire(ElapsedTime timer, SampleMecanumDrive drive, Pose2d poseEstimate) {
+        //VERSION 1.01
         double ResolvedX;
-        int TargetX = 180;
+        int TargetX = 175;
         boolean ReadyToFire = false;
-        double ResolvedAccuracy = 0.01;
-        double kV = .003;
+        double ResolvedAccuracy = 0.02;
+        double kV = .004;
 
         telemetry.update();
 
         //Turn on assorted systems
-        drive.flyWheel.setPower(0.9);
+        //drive.flyWheel.setPower(0.9);
         drive.Tread.setPower(0.0);
         drive.Intake.setPower(-0.2);
         drive.TreadGate.setPosition(0.7);
 
         //Initiate Automatic movement via Roadrunner
-        GoToViaSpline(drive, poseEstimate, -30, -15, 180, 0);
+        GoToViaSpline(drive, poseEstimate, 0, 0, 0, 0);
         timer.reset();
 
         //Allow the driver to adjust the position of the robot
-        while(gamepad1.dpad_right == false && gamepad2.dpad_right == false){
+        while(gamepad1.dpad_right == false && gamepad2.dpad_right == false && gamepad1.dpad_left == false && gamepad2.dpad_left == false){
             drive.setWeightedDrivePower(
                     new Pose2d(
-                            0,
-                            0,
-                            -gamepad1.right_stick_x * .4
+                            -gamepad1.left_stick_y * .3,
+                            -gamepad1.left_stick_x * .3,
+                            -gamepad1.right_stick_x * .3
                     )
             );
 
@@ -329,8 +335,8 @@ public class BetaAlfa extends LinearOpMode {
 
             ResolvedX = kV * (pipeline.getCenterofRect(pipeline.getRedRect()).x - TargetX);
             timer.reset();
-            while((ResolvedX < -ResolvedAccuracy || ResolvedX > ResolvedAccuracy) && isStopRequested() != true && timer.milliseconds() < 1500 && gamepad1.dpad_right != true && gamepad2.dpad_right != true) {
-                while ((ResolvedX < -ResolvedAccuracy || ResolvedX > ResolvedAccuracy) && isStopRequested() != true && timer.milliseconds() < 1500 && gamepad1.dpad_right != true && gamepad2.dpad_right != true) {
+            while((ResolvedX < -ResolvedAccuracy || ResolvedX > ResolvedAccuracy) && isStopRequested() != true && timer.milliseconds() < 1000 && gamepad1.dpad_right != true && gamepad2.dpad_right != true) {
+                while ((ResolvedX < -ResolvedAccuracy || ResolvedX > ResolvedAccuracy) && isStopRequested() != true && timer.milliseconds() < 1000 && gamepad1.dpad_right != true && gamepad2.dpad_right != true) {
                     telemetry.addLine("Auto Aligning. Press Dpad Right to cancel.");
                     telemetry.update();
                     ResolvedX = kV * (pipeline.getCenterofRect(pipeline.getRedRect()).x - TargetX);
@@ -342,7 +348,7 @@ public class BetaAlfa extends LinearOpMode {
 
             ResolvedX = kV * (pipeline.getCenterofRect(pipeline.getRedRect()).x - TargetX);
 
-            if(ResolvedX > -ResolvedAccuracy && ResolvedX < ResolvedAccuracy || timer.milliseconds() > 1450){
+            if(ResolvedX > -ResolvedAccuracy && ResolvedX < ResolvedAccuracy || timer.milliseconds() > 950){
                 ReadyToFire = true;
             }
         }
@@ -353,10 +359,28 @@ public class BetaAlfa extends LinearOpMode {
 
             telemetry.addData("Firing", ": Yes");
             drive.TreadGate.setPosition(0.4);
-            drive.Tread.setPower(0.6);
-            if(gamepad1.dpad_right || gamepad2.dpad_right){
+
+            if(drive.flyWheel.getVelocity(DEGREES) > 518){
+                drive.Tread.setPower(0.6);
+            } else {
+                drive.Tread.setPower(0);
+            }
+
+            /*if(gamepad1.dpad_right || gamepad2.dpad_right){
+                ReadyToFire = false;
+            }*/
+
+            if(gamepad1.dpad_up || gamepad2.dpad_up){
+                ReadyToFire = false;
+                drive.setPoseEstimate(new Pose2d(0, 0, 0));
+                drive.setPoseEstimate(new Pose2d(0, 0, 0));
+            } else if (gamepad2.dpad_down || gamepad1.dpad_down || gamepad2.dpad_right || gamepad1.dpad_right) {
                 ReadyToFire = false;
             }
+
+            telemetry.addData("Flywheel Velocity", drive.flyWheel.getVelocity(DEGREES));
+            telemetry.addData("Target X Pos", pipeline.getCenterofRect(pipeline.getRedRect()).x);
+
             telemetry.update();
         }
 

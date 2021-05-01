@@ -25,6 +25,8 @@ public class LocalizationTest extends LinearOpMode {
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        drive.setPoseEstimate(new Pose2d(-60, -25, Math.toRadians(180)));
+
         waitForStart();
 
         while (!isStopRequested()) {
@@ -42,7 +44,7 @@ public class LocalizationTest extends LinearOpMode {
             telemetry.addData("Encoder Pos - ", drive.getWheelPositions());
             telemetry.addData("x", poseEstimate.getX());
             telemetry.addData("y", poseEstimate.getY());
-            telemetry.addData("heading", poseEstimate.getHeading());
+            telemetry.addData("heading", Math.toDegrees(poseEstimate.getHeading()));
             telemetry.update();
         }
     }

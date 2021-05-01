@@ -14,6 +14,7 @@ import com.arcrobotics.ftclib.vision.UGContourRingDetector;
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
 import com.arcrobotics.ftclib.vision.UGRectRingPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -53,6 +54,7 @@ import java.lang.annotation.Target;
  * This file represents the primary autonomous routine for the robot, using Roadrunner, OpenCV, and that other pipeline.
  */
 
+@Disabled
 @Autonomous(group = "Beta")
 public class BetaCharlie extends LinearOpMode {
 
@@ -387,6 +389,8 @@ public class BetaCharlie extends LinearOpMode {
     }
 
     public void AutoFire(ElapsedTime timer, SampleMecanumDrive drive) {
+        //VERSION 0.9.5
+        //Autonomous Version
         double ResolvedX;
         int TargetX = 185;
         boolean ReadyToFire = false;

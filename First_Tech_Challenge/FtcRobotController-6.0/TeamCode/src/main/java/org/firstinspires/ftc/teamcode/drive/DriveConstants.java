@@ -106,6 +106,16 @@ public class DriveConstants {
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
 
+    public static DriveConstraints SLOW_CONSTRAINTS = new DriveConstraints(
+            20.0, 20.0, 0.0,
+            Math.toRadians(180.0), Math.toRadians(180.0), 0.0
+    );
+
+    public static DriveConstraints SPEED_CONSTRAINTS = new DriveConstraints(
+            80.0, 80.0, 0.0,
+            Math.toRadians(180.0), Math.toRadians(180.0), 0.0
+    );
+
 
     public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;

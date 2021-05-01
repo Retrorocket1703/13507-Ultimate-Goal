@@ -36,8 +36,8 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
-    public static double X_MULTIPLIER = .293; // Multiplier in the X direction  0.29506
-    public static double Y_MULTIPLIER = -.3; // Multiplier in the Y direction    -0.30949105914    293
+    public static double X_MULTIPLIER = .29506; // Multiplier in the X direction  0.29506
+    public static double Y_MULTIPLIER = -.30949; // Multiplier in the Y direction    -0.30949105914    293
 
     public StandardTrackingWheelLocalizer(HardwareMap hardwareMap) {
         super(Arrays.asList(
@@ -46,12 +46,12 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
                 new Pose2d(FORWARD_OFFSET, 0, Math.toRadians(90)) // front
         ));
 
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "flyWheel"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "intake"));
-        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Tread"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "misc")); //misc
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "intake")); // intake
+        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Tread")); // Tread
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
-        leftEncoder.setDirection(Encoder.Direction.REVERSE);
+        //leftEncoder.setDirection(Encoder.Direction.REVERSE);
         frontEncoder.setDirection(Encoder.Direction.REVERSE);
         rightEncoder.setDirection(Encoder.Direction.REVERSE);
     }
