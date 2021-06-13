@@ -46,7 +46,9 @@ import java.util.List;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.BASE_CONSTRAINTS;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MOTOR_VELO_PID;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.RUN_USING_ENCODER;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.SLOW_CONSTRAINTS;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.ULTRA_SLOW_CONSTRAINTS;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.encoderTicksToInches;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.getMotorVelocityF;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kA;
@@ -58,10 +60,17 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 1, 1.5);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(2, 1, 1);
+//    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
+//    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+//
+//    public static double LATERAL_MULTIPLIER = 2.307; // 2.307
+
+
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(1, 1, 1.5);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(2, .2, 1);
 
     public static double LATERAL_MULTIPLIER = 2.307; // 2.307
+
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -95,7 +104,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public CRServo wobbleLift;
 
-    public Servo TreadGate, intakeLift, wobbleClamp;
+    public Servo TreadGate, intakeLift, wobbleClamp, wobbleRotate, DiskGate;
 
     private List<Servo> servos;
 
@@ -144,11 +153,13 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
         flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+       // flyWheel.setDirection(DcMotor.Direction.REVERSE);
 
 
         Intake = hardwareMap.get(DcMotorEx.class, "intake");
         Tread = hardwareMap.get(DcMotorEx.class, "Tread");
         misc = hardwareMap.get(DcMotorEx.class, "misc");
+        Tread.setDirection(DcMotor.Direction.REVERSE);
 
 
 
@@ -157,9 +168,11 @@ public class SampleMecanumDrive extends MecanumDrive {
         wobbleLift = hardwareMap.get(CRServo.class, "wobbleLift");
         TreadGate = hardwareMap.get(Servo.class, "treadGate");
         intakeLift = hardwareMap.get(Servo.class, "intakeLift");
+        wobbleRotate = hardwareMap.get(Servo.class, "wobbleRotate");
+        DiskGate = hardwareMap.get(Servo.class, "DiskGate");
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront, Intake, Tread, flyWheel, misc);
-        servos = Arrays.asList(TreadGate, intakeLift, wobbleClamp);
+        servos = Arrays.asList(TreadGate, intakeLift, wobbleClamp, wobbleRotate, DiskGate);
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -215,8 +228,26 @@ public class SampleMecanumDrive extends MecanumDrive {
         turnProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                 new MotionState(heading, 0, 0, 0),
                 new MotionState(heading + angle, 0, 0, 0),
-                constraints.maxAngVel,
-                constraints.maxAngAccel,
+                BASE_CONSTRAINTS.maxAngVel,
+                BASE_CONSTRAINTS.maxAngVel,
+                BASE_CONSTRAINTS.maxAngVel
+        );
+
+        turnStart = clock.seconds();
+        mode = Mode.TURN;
+    }
+
+    //This is custom made. It allows for velocity control during turning. Maybe.
+    public void turnAsyncVelControl(double angle, double maxAngVel, double maxAngAccel) {
+        double heading = getPoseEstimate().getHeading();
+
+        lastPoseOnTurn = getPoseEstimate();
+
+        turnProfile = MotionProfileGenerator.generateSimpleMotionProfile(
+                new MotionState(heading, 0, 0, 0),
+                new MotionState(heading + angle, 0, 0, 0),
+                maxAngVel,
+                maxAngAccel,
                 constraints.maxAngJerk
         );
 

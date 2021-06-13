@@ -49,7 +49,7 @@ public class DriveConstants {
      */
     public static double WHEEL_RADIUS = 1.9685; // in
     public static double GEAR_RATIO = 2; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 13.8; // in 13.8
+    public static double TRACK_WIDTH = 17.6; // in 13.8
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -57,9 +57,15 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1.60 / rpmToVelocity(MAX_RPM);
-    public static double kA = .0053;
-    public static double kStatic = 0.01;
+    public static double kV = 0.011; // / rpmToVelocity(MAX_RPM); //Orig: 1.6
+    public static double kA = 0.0015; //Orig: .0053
+    public static double kStatic = 0.01; //Orig: .01
+
+
+//    public static double kV = 1.60 / rpmToVelocity(MAX_RPM); //Orig: 1.6
+//    public static double kA = .0053; //Orig: .0053
+//    public static double kStatic = 0.01; //Orig: .01
+
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -102,19 +108,31 @@ public class DriveConstants {
 
      */
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            50.0, 50.0, 0.0,
-            Math.toRadians(180.0), Math.toRadians(180.0), 0.0
+            90.0, 90.0, 0.0, //Originally 50/50
+            Math.toRadians(180.0), Math.toRadians(180.0), 0.0 // 90/120
     );
 
     public static DriveConstraints SLOW_CONSTRAINTS = new DriveConstraints(
             20.0, 20.0, 0.0,
-            Math.toRadians(180.0), Math.toRadians(180.0), 0.0
+            Math.toRadians(90.0), Math.toRadians(90.0), 0.0
+    );
+
+    public static DriveConstraints ULTRA_SLOW_CONSTRAINTS = new DriveConstraints(
+            5.0, 5.0, 0.0,
+            Math.toRadians(45.0), Math.toRadians(45.0), 0.0
     );
 
     public static DriveConstraints SPEED_CONSTRAINTS = new DriveConstraints(
-            80.0, 80.0, 0.0,
+            80.0, 60.0, 0.0,
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
+
+    public static DriveConstraints ULTRA_SPEED_CONSTRAINTS = new DriveConstraints(
+            110.0, 110.0, 0.0,
+            Math.toRadians(180.0), Math.toRadians(180.0), 0.0
+    );
+
+
 
 
     public static double encoderTicksToInches(double ticks) {

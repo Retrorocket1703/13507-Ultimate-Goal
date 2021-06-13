@@ -1,14 +1,16 @@
-package org.firstinspires.ftc.teamcode.Autonomous;
+ package org.firstinspires.ftc.teamcode.Autonomous;
 
 import android.graphics.Color;
 
 import androidx.core.location.GnssStatusCompat;
 
+import com.acmerobotics.roadrunner.drive.Drive;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.arcrobotics.ftclib.trajectory.TrajectoryConfig;
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -27,6 +29,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 
 @Autonomous(group = "Charlie")
+@Disabled
 public class CharlieAlfa extends LinearOpMode{
 
     private UGBasicHighGoalPipeline pipeline;
@@ -42,6 +45,7 @@ public class CharlieAlfa extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
+
 
         telemetry.addData("Initialization step: ", "Booting Cameras");
         telemetry.update();
@@ -76,7 +80,10 @@ public class CharlieAlfa extends LinearOpMode{
         telemetry.update();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        drive.setPoseEstimate(new Pose2d(-60, -25, Math.toRadians(180))); // -60, -25
+        drive.setPoseEstimate(new Pose2d(-63, -25, Math.toRadians(180))); // -60, -25
+
+        drive.wobbleClamp.setPosition(1);
+        drive.wobbleRotate.setPosition(1);
 
         ElapsedTime timer = new ElapsedTime();
         ElapsedTime MatchTimer = new ElapsedTime();
@@ -84,37 +91,26 @@ public class CharlieAlfa extends LinearOpMode{
         ElapsedTime timer3 = new ElapsedTime();
         ElapsedTime timer4 = new ElapsedTime();
 
-        //drive.intakeLift.setPosition(.1);
-        //Below is what drops the intake
-        //drive.intakeLift.setPosition(.9);
+        drive.intakeLift.setPosition(1);
 
         /** GENERIC MOVEMENT */
 
         Trajectory trajGeneric1 = drive.trajectoryBuilder(drive.getPoseEstimate(), true)
-                //Move to the starter stack at 140 degrees
-                .lineToLinearHeading(new Pose2d(-10, -22, Math.toRadians(185)))
-                //.splineToSplineHeading(new Pose2d(-10, -22, Math.toRadians(180)), Math.toRadians(0)) // -27.4, -26, 207, 0
+                //Move to the starter stack
+                .lineToLinearHeading(new Pose2d(0, -22, Math.toRadians(184))) //-10
                 .build();
 
-        Trajectory trajGeneric2 = drive.trajectoryBuilder(trajGeneric1.end().plus(new Pose2d(0, 0, 11)))
+        Trajectory trajGeneric2 = drive.trajectoryBuilder(trajGeneric1.end().plus(new Pose2d(0, 0, 30)))
                 //Drive to pickup disks
-                .lineToLinearHeading(new Pose2d(-25, -42, Math.toRadians(250)))
-                //.splineToSplineHeading(new Pose2d(-25, -42, Math.toRadians(230)), Math.toRadians(0), DriveConstants.SLOW_CONSTRAINTS)
-                //.splineToSplineHeading(new Pose2d(-20, -30, Math.toRadians(180)), Math.toRadians(180))
+                .lineToLinearHeading(new Pose2d(-21, -42, Math.toRadians(230)))
                 .build();
 
-        /*Trajectory trajNull1 = drive.trajectoryBuilder(trajGeneric2.end())
-                .back(15)
-                .build();*/
         Trajectory trajNull2 = drive.trajectoryBuilder(trajGeneric2.end())
                 .forward(20)
                 .build();
         Trajectory trajNull3 = drive.trajectoryBuilder(trajNull2.end())
                 .back(20)
                 .build();
-        /*Trajectory trajNull4 = drive.trajectoryBuilder(trajNull3.end())
-                .forward(15)
-                .build();*/
 
         //Fire powershots
 
@@ -122,146 +118,128 @@ public class CharlieAlfa extends LinearOpMode{
 
         Trajectory trajHeightZERO = drive.trajectoryBuilder(trajNull3.end())
                 //Drive to wobble goal delivery
-                .lineToLinearHeading(new Pose2d(5, -55, Math.toRadians(0)))
-                //.splineToSplineHeading(new Pose2d(5, -55, Math.toRadians(0)), Math.toRadians(180))
+                .lineToLinearHeading(new Pose2d(15, -50, Math.toRadians(0)))
                 .build();
 
         Trajectory trajHeightZERO2 = drive.trajectoryBuilder(trajHeightZERO.end())
                 //Move to collect second wobble goal
-                .lineToLinearHeading(new Pose2d(-40, -40, Math.toRadians(-50)))
-                //.splineToSplineHeading(new Pose2d(-40, -40, Math.toRadians(-50)), Math.toRadians(180))
+                .lineToLinearHeading(new Pose2d(-40, -35, Math.toRadians(-50)))
                 .build();
 
         Trajectory trajHeightZERO3 = drive.trajectoryBuilder(trajHeightZERO2.end())
 
                 //Move to second wobble goal delivery
-                .lineToLinearHeading(new Pose2d(0, -55, Math.toRadians(-50)))
-                //.splineToSplineHeading(new Pose2d(0, -55, Math.toRadians(-50)), Math.toRadians(90))
+                .lineToLinearHeading(new Pose2d(2, -50, Math.toRadians(50)))
                 .build();
 
         Trajectory trajHeightZERO4 = drive.trajectoryBuilder(trajHeightZERO3.end())
                 //Move to sit on line
                 .lineToLinearHeading(new Pose2d(10, -20, Math.toRadians(0)))
-                //.splineToSplineHeading(new Pose2d(10, -20, Math.toRadians(0)), Math.toRadians(0))
                 .build();
 
         /** HEIGHT ONE */
 
         Trajectory trajHeightONE = drive.trajectoryBuilder(trajNull3.end())
                 //Drive to wobble goal delivery
-                .splineToSplineHeading(new Pose2d(40, -30, Math.toRadians(0)), Math.toRadians(0))
-                //Drop first wobble goal
+                .lineToLinearHeading(new Pose2d(47, -35, Math.toRadians(0)), DriveConstants.SPEED_CONSTRAINTS)
                 .build();
 
-        Trajectory trajHeightONE2 = drive.trajectoryBuilder(trajHeightONE.end())
-                //Drive to shoot
-                .splineToSplineHeading(new Pose2d(-40, -45, Math.toRadians(-50)), Math.toRadians(180))
-                //Activate autofire
+        Trajectory trajHeightONE2 = drive.trajectoryBuilder(trajHeightONE.end(), true)
+                //Drive to pickup second wobble goal
+                .lineToLinearHeading(new Pose2d(-40, -29, Math.toRadians(-50)))
                 .build();
 
         Trajectory trajHeightONE3 = drive.trajectoryBuilder(trajHeightONE2.end())
-                //Move to pickup second wobble goal
-                .splineToSplineHeading(new Pose2d(30, -255, Math.toRadians(50)), Math.toRadians(180))
-                //Pickup second wobble goal
+                //Move to deliver second wobble goal
+                .lineToLinearHeading(new Pose2d(20, -25, Math.toRadians(80)), DriveConstants.SPEED_CONSTRAINTS)
                 .build();
 
         Trajectory trajHeightONE4 = drive.trajectoryBuilder(trajHeightONE3.end())
-                //Drive to wobble goal delivery zone
-                .splineToSplineHeading(new Pose2d(10, -25, Math.toRadians(0)), Math.toRadians(0))
-                //Drop second wobble goal in zone
+                //Drive to sit on line
+                .lineToLinearHeading(new Pose2d(15, -25, Math.toRadians(80)), DriveConstants.ULTRA_SPEED_CONSTRAINTS)
                 .build();
 
         /** HEIGHT FOUR */
 
-        /*Trajectory trajHeightFOUR =  drive.trajectoryBuilder(trajGeneric2.end())
+        Trajectory trajHeightFOUR =  drive.trajectoryBuilder(trajNull3.end())
                 //Drive to wobble goal delivery zone
-                .splineToSplineHeading(new Pose2d(50, -50, 50), 180)
+                //.lineToLinearHeading(new Pose2d(55, -50, 50), DriveConstants.SPEED_CONSTRAINTS)
+                .splineToSplineHeading(new Pose2d(47, -54, Math.toRadians(30)), Math.toRadians(0))//, DriveConstants.SPEED_CONSTRAINTS)
                 //Drop first wobble goal
-                .addDisplacementMarker(() -> {
-                    //TODO: Insert code to drop wobble goal
-                    //Turn on flywheel and intake systems
-                    drive.flyWheel.setPower(.8);
-                    //TODO: setup intake system
-                })
-                //Drive to pick up disks and firing solution
-                .splineToSplineHeading(new Pose2d(-20, -35, 180), 180)
-                //Autofire
-                .addDisplacementMarker(() -> {
-                    //TODO: Quantify autofire if it needs to be
-                    AutoFire(timer, drive, drive.getPoseEstimate());
-                })
+                .build();
+
+        /*Trajectory trajHeightFOUR2 = drive.trajectoryBuilder(trajHeightFOUR.end())
                 //Drive to pickup second wobble goal
-                .splineToSplineHeading(new Pose2d(-40, -45, -50), 180)
+                .lineToLinearHeading(new Pose2d(-43, -33, Math.toRadians(-50)))
                 //Pickup second wobble goal
-                .addDisplacementMarker(() -> {
-                    //TODO: Insert code to pickup second wobble goal
-                    //Probably turn on intake systems
-                })
-                //Drive to deliver second wobble goal (Possibly pickup remaining disk???)
-                .splineToSplineHeading(new Pose2d(50, -50, 50), -90)
-                //Drop second wobble goal in target zone
-                .addDisplacementMarker(() -> {
-                    //TODO: Insert code to drop second wobble goal
-                })
-                //Move to rest on line
-                .splineToSplineHeading(new Pose2d(10, -50, 0), 180)
                 .build();*/
 
+        /*Trajectory trajHeightFOUR3 = drive.trajectoryBuilder(trajHeightFOUR2.end())
+                //Drive to deliver second wobble goal (Possibly pickup remaining disk???)
+                .lineToLinearHeading(new Pose2d(50, -50, -50), DriveConstants.SPEED_CONSTRAINTS)
+                //Drop second wobble goal in target zone
+                .build();*/
+
+        Trajectory trajHeightFOUR4 = drive.trajectoryBuilder(trajHeightFOUR.end())
+                //Move to rest on line
+                //.lineToLinearHeading(new Pose2d(15, -50, Math.toRadians(0)))
+                .splineToSplineHeading(new Pose2d(15, -50, Math.toRadians(0)), Math.toRadians(180))
+                .build();
 
         telemetry.addLine("Finished computing, waiting for start");
-        telemetry.addData("CharlieAlfa Version : ", "1.08");
+        telemetry.addData("CharlieAlfa Version : ", "1.11");
         telemetry.update();
 
         waitForStart();
 
         if (isStopRequested()) return;
 
+        MatchTimer.reset();
+
+        //Initialization
+        drive.intakeLift.setPosition(0);
         drive.TreadGate.setPosition(.7);
-
-        DeployLifter(drive, timer, 0);
-
-        drive.flyWheel.setVelocity(450, AngleUnit.DEGREES);
-
-        DeployLifter(drive, timer, 1);
+        drive.flyWheel.setVelocity(490, AngleUnit.DEGREES);
+        drive.Intake.setPower(-1);
 
         //Move to power shot firing solution
         drive.followTrajectory(trajGeneric1);
 
+        //Do powershots
         PowerShotsAuto(timer, drive);
+
+        //Do some init stuff
+        drive.TreadGate.setPosition(.7);
+        drive.flyWheel.setVelocity(520, AngleUnit.DEGREES);
         drive.Intake.setPower(-1);
         drive.Tread.setPower(1);
 
+        //Move to the starter stack
         drive.followTrajectory(trajGeneric2);
-        //drive.followTrajectory(trajNull1);
+        //Do movements to capture disks
         drive.followTrajectory(trajNull2);
         drive.followTrajectory(trajNull3);
-        //drive.followTrajectory(trajNull4);
 
-        /*drive.turn(Math.toRadians(20));
-        drive.Intake.setPower(1);
-        drive.turn(Math.toRadians(-20));
+        //Leave the tread idling
+        drive.Tread.setPower(1);
         drive.Intake.setPower(-1);
-        drive.followTrajectory(trajNull1);
-        drive.turn(Math.toRadians(10));*/
 
-        drive.Tread.setPower(.6);
+        //sleep(1000);
 
-
-        sleep(1400);
-
-        drive.Tread.setPower(0);
         //Detect starter stack
         HeightStorage = detectColorHeight();
 
 
 
         if(HeightStorage == 0){
-            //Shut down the Fly wheel because we won't need it
+            //Shut down the Fly wheel and tread because we won't need it
             drive.flyWheel.setPower(0);
+            drive.Tread.setPower(0);
+
             //Move to Zero wobble goal delivery zone
             drive.followTrajectory(trajHeightZERO);
             //Drop first wobble goal
-            DeployLifter(drive, timer, 2);
+            DeployLifter(drive, timer, 0);
             //Move to second wobble goal pickup
             drive.followTrajectory(trajHeightZERO2);
             //Pickup second wobble goal
@@ -272,36 +250,73 @@ public class CharlieAlfa extends LinearOpMode{
             DeployLifter(drive, timer, 2);
             //Move to sit on line
             drive.followTrajectory(trajHeightZERO4);
+
+
         } else if (HeightStorage == 1){
-            drive.flyWheel.setVelocity(510, AngleUnit.DEGREES);
-            drive.turn(Math.toRadians(-80));
+
+            //Do normal shooting
+            drive.flyWheel.setVelocity(520, AngleUnit.DEGREES);
+            drive.turn(Math.toRadians(-60));
             AutoFire(timer, drive, drive.getPoseEstimate());
-            //Move to One wobble goal Delivery zone
+
+            //Shut down the tread
+            drive.Tread.setPower(0);
+
+            //Move to wobble goal delivery zone, shut down flywheel
             drive.followTrajectory(trajHeightONE);
             drive.flyWheel.setPower(0);
-            //Drop first wobble goal
-            DeployLifter(drive, timer, 2);
-            //Move to second wobble goal pickup
+            DeployLifter(drive, timer, 0);
+
+            //Move to pickup second wobble goal
             drive.followTrajectory(trajHeightONE2);
             DeployLifter(drive, timer, 1);
-            //Move to pickup second wobble goal
-            drive.followTrajectory(trajHeightONE3);
-            //Pickup second wobble goal
-            DeployLifter(drive, timer, 2);
-            //Drive to drop second wobble goal
-            //drive.followTrajectory(trajHeightONE4);
-            //Drop second wobble goal
 
-            //Drive to sit on line
+            //Move to drop second wobble goal
+            drive.followTrajectory(trajHeightONE3);
+            DeployLifter(drive, timer, 2);
+
+            //Move to sit on line
+            //drive.followTrajectory(trajHeightONE4);
+
 
         } else if (HeightStorage == 4) {
 
+            //Do Normal shooting
+            drive.flyWheel.setVelocity(520, AngleUnit.DEGREES);
+            drive.turn(Math.toRadians(-60));
+            AutoFire(timer, drive, drive.getPoseEstimate());
+
+            //Leave our intake systems running in case we run into a stray disk
+            drive.Intake.setPower(.8);
+            drive.Tread.setPower(.4);
+
+            //Drive to first wobble goal delivery zone
+            drive.followTrajectory(trajHeightFOUR);
+            drive.flyWheel.setPower(0);
+            DeployLifter(drive, timer, 0);
+
+            //Drive to pickup second wobble goal
+            /*drive.followTrajectory(trajHeightFOUR2);
+            DeployLifter(drive, timer, 1);
+
+            //Drive to second wobble goal delivery zone
+            drive.followTrajectory(trajHeightFOUR3);
+            DeployLifter(drive, timer, 2);*/
+
+            //Drive to sit on line
+            drive.followTrajectory(trajHeightFOUR4);
         }
 
+        //Shut down an extraneous systems
+        drive.Tread.setPower(0);
+        drive.Intake.setPower(0);
+
+        //Display telemetry data to the console
         telemetry.addData("Guessed Height: ", HeightStorage);
+        telemetry.addData("Match: ", MatchTimer.milliseconds());
         telemetry.update();
 
-        while(opModeIsActive() && isStopRequested() == false);
+        PoseStorage.currentPose = drive.getPoseEstimate();
 
 
     }
@@ -312,23 +327,32 @@ public class CharlieAlfa extends LinearOpMode{
         //----Empty
         //Low: 37, 46, 42
         //High: 97, 139, 70
-        if((High_Sensor.red() > 248 && High_Sensor.green() > 197 && High_Sensor.blue() > 112) && (Low_Sensor.red() > 80 && Low_Sensor.green() > 64 && Low_Sensor.blue() > 49))
+        if((Low_Sensor.red() > 54))// && Low_Sensor.green() > 60 && Low_Sensor.blue() > 48))
             return 4;
         else if ((High_Sensor.red() > 248 && High_Sensor.green() > 197 && High_Sensor.blue() > 112))
             return 1;
         else
             return 0;
+        //(High_Sensor.red() > 248 && High_Sensor.green() > 197 && High_Sensor.blue() > 112) &&
     }
 
     /** AUTOMATIC SALVO SYSTEMS */
     public void AutoFire(ElapsedTime timer, SampleMecanumDrive drive, Pose2d poseEstimate) {
-        //VERSION 1.01
-        //Autonomous Version
+        //VERSION 1.03b-a-s
+        //Code: [Current code][Extra code]-[Tele/Auto]-[Experimental/Stable]
+        /**
+         * Changelog:
+         * 1.02e: Added Automatic shutoff via color sensor recognition. Added assorted comments.
+         * 1.03e: Removed Automatic shutoff via color sensor. Added wait for start in an attempt to remove first shot misses.
+         * 1.03a-s: Working consistently, only change if in error.
+         * 1.03b-t-s: Adjusted the speed of the robot during Manual Override
+         * 1.03b-a-s: Update for autonomous mode
+         */
         double ResolvedX;
-        int TargetX = 175;
+        int TargetX = 185;
         boolean ReadyToFire = false;
-        double ResolvedAccuracy = 0.02;
-        double kV = .004;
+        double ResolvedAccuracy = 0.01;
+        double kV = .006;
 
         telemetry.update();
 
@@ -336,8 +360,9 @@ public class CharlieAlfa extends LinearOpMode{
         drive.Tread.setPower(0.0);
         drive.Intake.setPower(-0.2);
         drive.TreadGate.setPosition(0.7);
+        drive.flyWheel.setVelocity(520, AngleUnit.DEGREES);
 
-        timer.reset();
+        telemetry.update();
 
         //Is the high goal visible? If yes, continue firing routine.
         if(pipeline.isRedVisible()){
@@ -346,10 +371,11 @@ public class CharlieAlfa extends LinearOpMode{
             timer.reset();
             while((ResolvedX < -ResolvedAccuracy || ResolvedX > ResolvedAccuracy) && isStopRequested() != true && timer.milliseconds() < 1000 && gamepad1.dpad_right != true && gamepad2.dpad_right != true) {
                 while ((ResolvedX < -ResolvedAccuracy || ResolvedX > ResolvedAccuracy) && isStopRequested() != true && timer.milliseconds() < 1000 && gamepad1.dpad_right != true && gamepad2.dpad_right != true) {
-                    telemetry.addLine("Auto Aligning.");
+                    telemetry.addLine("Auto Aligning. Press Dpad Right to cancel.");
                     telemetry.update();
                     ResolvedX = kV * (pipeline.getCenterofRect(pipeline.getRedRect()).x - TargetX);
                     drive.setMotorPowers(ResolvedX, ResolvedX, -ResolvedX, -ResolvedX);
+                    drive.update();
                 }
             }
 
@@ -362,21 +388,29 @@ public class CharlieAlfa extends LinearOpMode{
             }
         }
 
+        while(drive.flyWheel.getVelocity(DEGREES) < 518) drive.update();
+
+        ReadyToFire = true;
+
         timer.reset();
         while (isStopRequested() != true && opModeIsActive() && ReadyToFire == true){
+
+            drive.update();
 
             telemetry.addData("Flywheel Voltage ", drive.flyWheel.getCurrent(CurrentUnit.AMPS));
 
             telemetry.addData("Firing", ": Yes");
-            drive.TreadGate.setPosition(0.4);
 
-            if(drive.flyWheel.getVelocity(DEGREES) > 515 ){
-                drive.Tread.setPower(0.6);
+
+
+            //If the flywheel is at the correct velocity, open the gate and fire
+            if(drive.flyWheel.getVelocity(DEGREES) > 515){
+                drive.Tread.setPower(1);
+                drive.TreadGate.setPosition(0.4);
             } else {
                 drive.Tread.setPower(0);
             }
-
-            if(timer.milliseconds() > 2000 && HeightStorage == 1)
+            if(timer.milliseconds() > 2300 && HeightStorage == 1)
                 ReadyToFire = false;
             else if (timer.milliseconds() > 5000 && HeightStorage == 4)
                 ReadyToFire = false;
@@ -397,7 +431,6 @@ public class CharlieAlfa extends LinearOpMode{
         //Mode 1: Pickup
         //Mode 2: Drop
         if(mode == 0){
-            drive.wobbleClamp.setPosition(1);
 
             timer.reset();
             while(timer.milliseconds() < 1500){
@@ -408,21 +441,31 @@ public class CharlieAlfa extends LinearOpMode{
             while(timer.milliseconds() < 1500){
                 drive.wobbleLift.setPower(-.6);
             }
+            drive.wobbleRotate.setPosition(.75);
+
+            sleep(400);
+
+            drive.wobbleClamp.setPosition(.4);
             drive.wobbleLift.setPower(0);
+
+
 
         } else if (mode == 1){
-            drive.wobbleClamp.setPosition(0);
-
-            timer.reset();
-            while(timer.milliseconds() < 2000){
-                drive.wobbleLift.setPower(.6);
-            }
-            drive.wobbleLift.setPower(0);
-        } else if (mode == 2){
             drive.wobbleClamp.setPosition(1);
 
             timer.reset();
-            while(timer.milliseconds() < 2000){
+            while(timer.milliseconds() < 800){
+                drive.wobbleLift.setPower(.6);
+            }
+            drive.wobbleLift.setPower(0);
+
+
+
+        } else if (mode == 2){
+            drive.wobbleClamp.setPosition(.4);
+
+            timer.reset();
+            while(timer.milliseconds() < 800){
                 drive.wobbleLift.setPower(-.6);
             }
 
@@ -432,19 +475,36 @@ public class CharlieAlfa extends LinearOpMode{
 
     public void PowerShotsAuto(ElapsedTime timer, SampleMecanumDrive drive) {
 
-        DeadFire(timer, drive, 0);
+        //Open the gate and start firing
+        drive.TreadGate.setPosition(.1);
+        drive.Tread.setPower(.95);
 
-        drive.turn(Math.toRadians(5));
+        //Turn slowly
+        drive.turnAsyncVelControl(Math.toRadians(30), Math.toRadians(34), Math.toRadians(34));
 
-        DeadFire(timer, drive, 0);
+        //Wait for the drive to finish
+        while(drive.isBusy()) drive.update();
 
-        drive.turn(Math.toRadians(6));
-
-        DeadFire(timer, drive, 0);
-
-        drive.flyWheel.setPower(1);
+        sleep(300);
 
     }
+
+
+}
+
+/********** BONEYARD **************
+ *
+
+ while(drive.isBusy()){
+ if(isStopRequested() == true || opModeIsActive() == false){
+ drive.cancelFollowing();
+ break;
+ }
+ drive.update();
+ telemetry.addData("Pose Estimate ", drive.getPoseEstimate());
+ telemetry.addData("Height ", HeightStorage);
+ telemetry.update();
+ }
 
     public void DeadFire (ElapsedTime timer, SampleMecanumDrive drive, double flyWheelPower) {
         drive.flyWheel.setVelocity(450, AngleUnit.DEGREES);
@@ -463,20 +523,4 @@ public class CharlieAlfa extends LinearOpMode{
 
         drive.Tread.setPower(0);
         drive.TreadGate.setPosition(.7);
-    }
-}
-
-/********** BONEYARD **************
- *
-
- while(drive.isBusy()){
- if(isStopRequested() == true || opModeIsActive() == false){
- drive.cancelFollowing();
- break;
- }
- drive.update();
- telemetry.addData("Pose Estimate ", drive.getPoseEstimate());
- telemetry.addData("Height ", HeightStorage);
- telemetry.update();
- }
- */
+    }*/
